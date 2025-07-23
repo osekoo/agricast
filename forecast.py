@@ -26,11 +26,45 @@ def forecast(params):
 
 #traitement des donnees meteo et conversion en dataframe
 def process_data(responses):
-    # Convertir les données en DataFrame
-    df = pd.DataFrame(responses['hourly'])
-    # Convertir les timestamps en datetime
-    df['time'] = pd.to_datetime(df['time'], unit='s')
-    # Sélectionner les colonnes d'intérêt
-    df = df[['time', 'temperature_2m', 'relative_humidity_2m', 'cloud_cover', 'wind_speed_10m']]
+    hourly = responses.Hourly()
+    temperature = hourly.Variables(0).ValuesAsNumpy()
+    humidity = hourly.Variables(1).ValuesAsNumpy()
+    wind = hourly.Variables(2).ValuesAsNumpy()
+
+    # Génère la timeline
+    dates = pd.date_range(
+        start=pd.to_datetime(hourly.Time(), unit="s", utc=True),
+        end=pd.to_datetime(hourly.TimeEnd(), unit="s", utc=True),
+        freq=pd.Timedelta(seconds=hourly.Interval()),
+        inclusive="left"
+    )
+
+    df = pd.DataFrame({
+        "Date": dates,
+        "Température (°C)": temperature,
+        "Humidité (%)": humidity,
+        "Vent (km/h)": wind
+    })
+
     return df
+
+
+
+
+def main():
+    # Localisation par défaut : Lomé
+    #latitude = 6.13
+    #longitude = 1.21
+
+    print("📡 Récupération des données météo en cours...")
+    params = coord_geo()
+    response = forecast(params)
+    df = process_data(response)
+
+    print("✅ Données traitées. Aperçu :")
+    print(df.head())
+
+if __name__ == "__main__":
+    main()
+
 
