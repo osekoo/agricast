@@ -29,7 +29,8 @@ def process_data(responses):
     hourly = responses.Hourly()
     temperature = hourly.Variables(0).ValuesAsNumpy()
     humidity = hourly.Variables(1).ValuesAsNumpy()
-    wind = hourly.Variables(2).ValuesAsNumpy()
+    cloud_cover = hourly.Variables(2).ValuesAsNumpy()
+    wind = hourly.Variables(3).ValuesAsNumpy()
 
     # Génère la timeline
     dates = pd.date_range(
@@ -43,6 +44,7 @@ def process_data(responses):
         "Date": dates,
         "Température (°C)": temperature,
         "Humidité (%)": humidity,
+        "Couverture nuageuse (%)": cloud_cover,
         "Vent (km/h)": wind
     })
 
